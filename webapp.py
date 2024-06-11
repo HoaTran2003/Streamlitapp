@@ -26,10 +26,11 @@ def main():
     and deployment using Streamlit.
     """)
 
+    
+
     # Function to load and encode the data
     @st.cache_data(persist=True)
     def load_data():
-        
         data = pd.read_csv("mushrooms.csv")
         labelencoder = LabelEncoder()
         for col in data.columns:
@@ -39,8 +40,8 @@ def main():
     # Function to split the data into training and testing sets
     @st.cache_data(persist=True)
     def split(df):
-        y = df["class"]
-        x = df.drop(columns=['class'])
+        y = df.type
+        x = df.drop(columns=['type'])
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
         
         # Scaling the data
@@ -101,10 +102,6 @@ def main():
 
     # Split the data into training and testing sets
     x_train, x_test, y_train, y_test = split(df)
-
-    # Convert y_train and y_test to numpy arrays (to avoid issues with data types)
-    y_train = np.array(y_train)
-    y_test = np.array(y_test)
 
     # Classifier selection
     st.sidebar.subheader("Choose Classifier")
