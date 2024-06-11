@@ -31,7 +31,7 @@ def main():
     # Function to load and encode the data
     @st.cache_data(persist=True)
     def load_data():
-        data = pd.read_csv("https://github.com/HoaTran2003/Streamlitapp/blob/156b0bd63e825be016b0459d8f340f2978e735b5/mushrooms.csv")
+        data = pd.read_csv("mushrooms.csv")
         labelencoder = LabelEncoder()
         for col in data.columns:
             data[col] = labelencoder.fit_transform(data[col])
