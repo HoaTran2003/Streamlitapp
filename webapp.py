@@ -235,7 +235,7 @@ def main():
 
         if st.sidebar.button("Train Model", key='train_rf'):
             st.subheader("Random Forest Results")
-            model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, bootstrap=bootstrap, n_jobs=-1)
+            model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, bootstrap=bootstrap == 'True', n_jobs=-1)
             model.fit(x_train, y_train)
             accuracy = model.score(x_test, y_test)
             y_pred = model.predict(x_test)
