@@ -26,38 +26,48 @@ def main():
     and deployment using Streamlit.
     """)
 
-    
-
     # Function to load and encode the data
     @st.cache_data(persist=True)
     def load_data():
-        data = pd.read_csv("mushrooms.csv")
-        labelencoder = LabelEncoder()
-        for col in data.columns:
-            data[col] = labelencoder.fit_transform(data[col])
-        return data
+        try:
+            data = pd.read_csv("mushrooms.csv")
+            labelencoder = LabelEncoder()
+            for col in data.columns:
+                data[col] = labelencoder.fit_transform(data[col])
+            return data
+        except Exception as e:
+            st.error(f"Error loading data: {e}")
+            return None
     
     # Function to split the data into training and testing sets
     @st.cache_data(persist=True)
     def split(df):
-        y = df.type
-        x = df.drop(columns=['type'])
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
-        
-        # Scaling the data
-        scaler = StandardScaler()
-        x_train = scaler.fit_transform(x_train)
-        x_test = scaler.transform(x_test)
-        
-        return x_train, x_test, y_train, y_test
+        try:
+            y = df["type"]
+            x = df.drop(columns=['type'])
+            x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
+
+            # Scaling the data
+            scaler = StandardScaler()
+            x_train = scaler.fit_transform(x_train)
+            x_test = scaler.transform(x_test)
+            
+            return x_train, x_test, y_train, y_test
+        except Exception as e:
+            st.error(f"Error splitting data: {e}")
+            return None, None, None, None
 
     # Function to calculate feature importance for the Random Forest model
     @st.cache_data(persist=True)
     def feature_importance(model, x_train):
-        importance = model.feature_importances_
-        indices = np.argsort(importance)
-        features = x_train.columns[indices]
-        return pd.DataFrame({'Feature': features, 'Importance': importance[indices]})
+        try:
+            importance = model.feature_importances_
+            indices = np.argsort(importance)
+            features = x_train.columns[indices]
+            return pd.DataFrame({'Feature': features, 'Importance': importance[indices]})
+        except Exception as e:
+            st.error(f"Error calculating feature importance: {e}")
+            return None
     
     # Function to plot confusion matrix
     def plot_confusion_matrix(cm, class_names):
@@ -88,6 +98,9 @@ def main():
     
     # Load the data
     df = load_data()
+    if df is None:
+        return
+
     class_names = ['edible', 'poisonous']
     
     # Option to display raw data
@@ -102,6 +115,12 @@ def main():
 
     # Split the data into training and testing sets
     x_train, x_test, y_train, y_test = split(df)
+    if x_train is None:
+        return
+
+    # Convert y_train and y_test to numpy arrays (to avoid issues with writeable flag)
+    y_train = np.array(y_train)
+    y_test = np.array(y_test)
 
     # Classifier selection
     st.sidebar.subheader("Choose Classifier")
@@ -254,14 +273,15 @@ def main():
             if 'Feature Importance' in metrics:
                 st.subheader("Feature Importance")
                 fi_df = feature_importance(model, x_train)
-                st.write(fi_df)
-                plt.figure(figsize=(10,6))
-                plt.title('Feature Importances')
-                sns.barplot(x='Importance', y='Feature', data=fi_df)
-                st.pyplot()
-                st.write("""
-                The feature importance plot helps to identify which features are most influential in the model's decision-making process.
-                """)
+                if fi_df is not None:
+                    st.write(fi_df)
+                    plt.figure(figsize=(10,6))
+                    plt.title('Feature Importances')
+                    sns.barplot(x='Importance', y='Feature', data=fi_df)
+                    st.pyplot()
+                    st.write("""
+                    The feature importance plot helps to identify which features are most influential in the model's decision-making process.
+                    """)
 
     # Model comparison
     if st.sidebar.checkbox("Compare Models", False):
