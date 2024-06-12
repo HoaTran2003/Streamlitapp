@@ -59,9 +59,9 @@ def main():
 
     # Function to calculate feature importance for the Random Forest model
     @st.cache_data(persist=True)
-    def feature_importance(model, x_train):
+    def feature_importance(_model, x_train):
         try:
-            importance = model.feature_importances_
+            importance = _model.feature_importances_
             indices = np.argsort(importance)
             features = x_train.columns[indices]
             return pd.DataFrame({'Feature': features, 'Importance': importance[indices]})
@@ -230,12 +230,12 @@ def main():
         st.sidebar.subheader("Model Hyperparameters")
         n_estimators = st.sidebar.number_input("The number of trees in the forest", 100, 5000, step=10, key='n_estimators')
         max_depth = st.sidebar.number_input("The maximum depth of the tree", 1, 20, step=1, key='max_depth')
-        bootstrap = st.sidebar.radio("Bootstrap samples when building trees", ('True', 'False'), key='bootstrap')
+        bootstrap = st.sidebar.radio("Bootstrap samples when building trees", (True, False), key='bootstrap')
         metrics = st.sidebar.multiselect("What metrics to plot?", ('Confusion Matrix', 'ROC Curve', 'Precision-Recall Curve', 'Feature Importance'))
 
         if st.sidebar.button("Train Model", key='train_rf'):
             st.subheader("Random Forest Results")
-            model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, bootstrap=(bootstrap == 'True'), n_jobs=-1)
+            model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, bootstrap=bootstrap, n_jobs=-1)
             model.fit(x_train, y_train)
             accuracy = model.score(x_test, y_test)
             y_pred = model.predict(x_test)
@@ -272,16 +272,15 @@ def main():
 
             if 'Feature Importance' in metrics:
                 st.subheader("Feature Importance")
-                fi_df = feature_importance(model, pd.DataFrame(x_train, columns=df.columns.drop('type')))
-                if fi_df is not None:
-                    st.write(fi_df)
-                    plt.figure(figsize=(10,6))
-                    plt.title('Feature Importances')
-                    sns.barplot(x='Importance', y='Feature', data=fi_df)
-                    st.pyplot()
-                    st.write("""
-                    The feature importance plot helps to identify which features are most influential in the model's decision-making process.
-                    """)
+                fi_df = feature_importance(model, x_train)
+                st.write(fi_df)
+                plt.figure(figsize=(10,6))
+                plt.title('Feature Importances')
+                sns.barplot(x='Importance', y='Feature', data=fi_df)
+                st.pyplot()
+                st.write("""
+                The feature importance plot helps to identify which features are most influential in the model's decision-making process.
+                """)
 
     # Model comparison
     if st.sidebar.checkbox("Compare Models", False):
