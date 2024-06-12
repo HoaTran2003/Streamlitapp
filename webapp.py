@@ -149,9 +149,9 @@ def main():
             model.fit(x_train, y_train)
             accuracy = model.score(x_test, y_test)
             y_pred = model.predict(x_test)
-            st.write("Accuracy: ", accuracy.round(2))
-            st.write("Precision: ", precision_score(y_test, y_pred).round(2))
-            st.write("Recall: ", recall_score(y_test, y_pred).round(2))
+            st.write("Accuracy: ", round(accuracy, 2))
+            st.write("Precision: ", round(precision_score(y_test, y_pred), 2))
+            st.write("Recall: ", round(recall_score(y_test, y_pred), 2))
 
             if 'Confusion Matrix' in metrics:
                 cm = confusion_matrix(y_test, y_pred)
@@ -194,9 +194,9 @@ def main():
             model.fit(x_train, y_train)
             accuracy = model.score(x_test, y_test)
             y_pred = model.predict(x_test)
-            st.write("Accuracy: ", accuracy.round(2))
-            st.write("Precision: ", precision_score(y_test, y_pred).round(2))
-            st.write("Recall: ", recall_score(y_test, y_pred).round(2))
+            st.write("Accuracy: ", round(accuracy, 2))
+            st.write("Precision: ", round(precision_score(y_test, y_pred), 2))
+            st.write("Recall: ", round(recall_score(y_test, y_pred), 2))
 
             if 'Confusion Matrix' in metrics:
                 cm = confusion_matrix(y_test, y_pred)
@@ -235,13 +235,13 @@ def main():
 
         if st.sidebar.button("Train Model", key='train_rf'):
             st.subheader("Random Forest Results")
-            model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, bootstrap=bootstrap == 'True', n_jobs=-1)
+            model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, bootstrap=(bootstrap == 'True'), n_jobs=-1)
             model.fit(x_train, y_train)
             accuracy = model.score(x_test, y_test)
             y_pred = model.predict(x_test)
-            st.write("Accuracy: ", accuracy.round(2))
-            st.write("Precision: ", precision_score(y_test, y_pred).round(2))
-            st.write("Recall: ", recall_score(y_test, y_pred).round(2))
+            st.write("Accuracy: ", round(accuracy, 2))
+            st.write("Precision: ", round(precision_score(y_test, y_pred), 2))
+            st.write("Recall: ", round(recall_score(y_test, y_pred), 2))
 
             if 'Confusion Matrix' in metrics:
                 cm = confusion_matrix(y_test, y_pred)
@@ -272,7 +272,7 @@ def main():
 
             if 'Feature Importance' in metrics:
                 st.subheader("Feature Importance")
-                fi_df = feature_importance(model, x_train)
+                fi_df = feature_importance(model, pd.DataFrame(x_train, columns=df.columns.drop('type')))
                 if fi_df is not None:
                     st.write(fi_df)
                     plt.figure(figsize=(10,6))
@@ -298,7 +298,7 @@ def main():
             for name, model in models.items():
                 model.fit(x_train, y_train)
                 accuracy = model.score(x_test, y_test)
-                results[name] = accuracy.round(2)
+                results[name] = round(accuracy, 2)
             st.write(results)
     
     # Detailed write-up
